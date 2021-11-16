@@ -1,20 +1,29 @@
 import React, {useState, useEffect} from 'react';
 import {validate} from "./validate.js";
 
+import {notify} from "./toast"
+  import { ToastContainer} from 'react-toastify';
+  import 'react-toastify/dist/ReactToastify.css';
 const SignUp = () => {
-    const [data,setData] =   useState({
+   
+    const [data,setData] =  useState({
         name:"",
         email: "",
         password: "",
         confirmPassword: "",
         isAccepted :false,
-    })
+    });
     const [errors,setErrors] = useState({});
+    const [touched,setTouched] = useState({});
 
+
+    const focusHandler = (event) => {
+    setTouched({...touched , [event.target.name] : true})
+    }
     useEffect(() => {
 setErrors(validate(data))
-console.log(errors)
-    } , [data])
+
+    } , [data , touched])
 
 const changeHandler = event =>{
     if(event.target.name==="isAccepted"){
@@ -25,34 +34,50 @@ const changeHandler = event =>{
     }
     console.log(data)
 }
+const submitHandler = event =>{
+    event.preventDefault();
+    notify();
+    if(!Object.keys(errors).length){
+        notify("you have sign successfully")
+    }else{
+        notify("you are not signed in")
+        setTouched({
+            name:true,
+            email:true,
+            password:true,
+            confirmPassword:true,
+            isAccepted:true
+        })
+    }
+}
     return (
         <div>
-        <form>
+        <form onSubmit={submitHandler}>
             <h2>Sign Up</h2>
             <div>
                 <label>name</label>
-                <input type="text" name="name" value={data.name} onChange={changeHandler}/>
-                {errors.name && <span>{errors.name}</span>} 
+                <input type="text" name="name" value={data.name} onChange={changeHandler} onFocus={focusHandler}/>
+                {errors.name && touched.name && <span>{errors.name}</span>} 
             </div>
             <div>
                 <label>email</label>
-                <input type="text" name="email" value={data.email} onChange={changeHandler}/>
-                {errors.email && <span>{errors.name}</span>} 
+                <input type="text" name="email" value={data.email} onChange={changeHandler}onFocus={focusHandler}/>
+                {errors.email  && touched.email&& <span>{errors.email}</span>} 
             </div>
             <div>
                 <label>Password</label>
-                <input type="text" name="Password" value={data.password} onChange={changeHandler}/>
-                {errors.password && <span>{errors.name}</span>} 
+                <input type="password" name="password" value={data.password} onChange={changeHandler} onFocus={focusHandler}/>
+                {errors.password && touched.password && <span>{errors.password}</span>}  
             </div>
             <div>
                 <label>confirm password</label>
-                <input type="text" name="confirm " value={data.confirmPassword}onChange={changeHandler}   />
-                {errors.confirmPassword && <span>{errors.name}</span>} 
+                <input type="password" name="confirmpassword " value={data.confirmPassword} onChange={changeHandler} onFocus={focusHandler}  />
+                {errors.confirmPassword  && touched.confirmPassword&& <span>{errors.confirmPassword}</span>} 
             </div>
             <div>
                 <label>i accept</label>
                 <input type="checkbox" name="isAccepted" value={data.isAccepted} />
-                {errors.isAccepted && <span>{errors.name}</span>} 
+                {errors.isAccepted && <span>{errors.isAccepted}</span>} 
             </div>
             <div>
                 <a href="KJFKF" >login</a>
@@ -60,6 +85,7 @@ const changeHandler = event =>{
             
                 </div>
         </form>
+        <ToastContainer />
         </div>
     );
 };
